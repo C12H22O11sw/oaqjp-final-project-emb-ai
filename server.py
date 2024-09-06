@@ -1,25 +1,38 @@
+''' A lightweight server to detect the emotion of a user-provided prompt
+'''
+
 from flask import Flask, request, render_template
 from EmotionDetection.emotion_detection import emotion_detector
 
 app = Flask('Final Project')
 
 @app.route('/emotionDetector')
-def emotion_detector():
+def detect_emotions():
+    ''' Generate a responce message explaining the emotion of the user's prompt text
+    '''
     text_to_analyze = request.args.get('textToAnalyze')
-    responce = emotion_detector('Bunnies are cute')
-    responce_string = 'For the given statement, the system responce is '
-    + f"'anger': {responce['anger']}, "
-    + f"'disgust': {responce['disgust']}, "
-    + f"'fear': {responce['fear']}, "
-    + f"'joy': {responce['joy']}, "
-    + f"'sadness': {responce['sadness']}. "
-    + f"The dominant emotion is {responce['dominant_emotion']}"
+    response = emotion_detector(text_to_analyze)
 
-    return responce_string
+    # handle invalid response
+    if not response['dominant_emotion']:
+        return 'Invalid text! Please try again!'
+
+
+    response_string = 'For the given statement, the system response is ' \
+    + f"'anger': {response['anger']}, " \
+    + f"'disgust': {response['disgust']}, " \
+    + f"'fear': {response['fear']}, " \
+    + f"'joy': {response['joy']}, " \
+    + f"'sadness': {response['sadness']}. " \
+    + f"The dominant emotion is {response['dominant_emotion']}"
+
+    return response_string
 
 @app.route("/")
 def render_index_page():
+    ''' Render the index page
+    '''
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5002)
